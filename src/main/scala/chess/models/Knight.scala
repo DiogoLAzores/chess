@@ -23,7 +23,7 @@ final case class Knight(isLight: Boolean = true) extends ChessPiece {
 
 object Knight {
   implicit class KingInCheck(knight: Knight) {
-    def checkAttacks(kingRow: Int, kingColumn: Int) = {
+    def checkAttacks(kingRow: Int, kingColumn: Int): Boolean = {
       val validPlusRows: Int => Boolean     = kingRow + _ <= 7
       val validMinusRows: Int => Boolean    = kingRow - _ >= 0
       val validPlusColumns: Int => Boolean  = kingColumn + _ <= 7

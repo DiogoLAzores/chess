@@ -41,7 +41,7 @@ object BoardLogic {
     Option(piece)
   }
 
-  def presentBoard: Unit = {
+  def presentBoard(): Unit = {
     println("X  0  1  2  3  4  5  6  7")
     gameBoard.zipWithIndex.foreach {
       case (line, idx) => println(line.mkString(s"$idx [", "][", "]"))

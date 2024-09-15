@@ -48,7 +48,7 @@ trait ChessPiece {
     *
     * @param currentBoard Current board state
     * @param currentPos Current column/row position to be checked. '''Start in the next expected position'''
-    * @param limits Column/Row limits to reach
+    * @param targets Column/Row limits to reach
     * @return Boolean indicating if movement is successful/without chess pieces blocking the way
     * @note When starting, consider the ''currentPos'' to be the next space where the chess piece would go after its
     *       initial position

@@ -4,12 +4,15 @@ import chess.BoardLogic._
 import chess.models.King.isKingInCheck
 import com.whitehatgaming.UserInputFile
 
+import scala.annotation.tailrec
+
 object Main extends App {
   val movesFile = new UserInputFile(
     "C:\\Users\\Utilizador\\Documents\\ChessProj\\chess\\data\\sample-moves.txt"
   )
 
-  def play(
+  @tailrec
+  private def play(
     wasLastMoveOk: Boolean = true,
     move: Option[Array[Int]] = Option(movesFile.nextMove()),
     lastMove: Option[Array[Int]] = None,
@@ -22,7 +25,7 @@ object Main extends App {
     move match {
       // No more moves to process
       case None =>
-        presentBoard
+        presentBoard()
         println("No more moves - Final board state above")
 
       // Process new move
@@ -65,7 +68,7 @@ object Main extends App {
               (true, false/*isKingInCheck(isLight = !isCurrentLight)*/)
           }
 
-          presentBoard
+          presentBoard()
 
           // Send current outcome's result with the current move to next move's logic, moving to next player
           play(isSuccessful, lastMove = move/*, currentPlayerInCheck = currentKingInCheck*/)
