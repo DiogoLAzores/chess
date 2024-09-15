@@ -1,6 +1,7 @@
 package chess
 
 import chess.BoardLogic._
+import chess.models.King.isKingInCheck
 import com.whitehatgaming.UserInputFile
 
 import scala.annotation.tailrec
@@ -14,20 +15,27 @@ object Main extends App {
   private def play(
     wasLastMoveOk: Boolean = true,
     move: Option[Array[Int]] = Option(movesFile.nextMove()),
-    lastMove: Option[Array[Int]] = None
+    lastMove: Option[Array[Int]] = None,
+    currentPlayerInCheck: Boolean = false
   ): Unit = {
     println("#" * 30)
-    println(s"Processing move: ${lastMove.fold("None - Initial Board State")(_.mkString("[", ", ", "]"))}")
+    lastMove.fold(print("Initial Board State"))(lMove => print(s"Processing move: ${lMove.mkString("[", ", ", "]")}"))
 
     move match {
       // No more moves to process
       case None =>
+        println(if (currentPlayerInCheck) " (Next player ends up [IN CHECK])" else "")
+        println("[No more moves]")
         presentBoard()
-        println("No more moves - Final board state above")
 
       // Process new move
       case Some(Array(fColumn, fRow, tColumn, tRow)) =>
+        val oldGameBoard      = gameBoard
         val currentChessPiece = gameBoard(fRow)(fColumn)
+        val isCurrentLight    = currentChessPiece.forall(_.isUpper)
+
+        println(if (currentPlayerInCheck) s" (Current Player ${if (isCurrentLight) "1" else "2"} [IN CHECK])" else "")
+        presentBoard()
 
         // Check if same player is doing next move by analyzing if new movement affects the same side of the board
         val samePlayer =
@@ -53,20 +61,32 @@ object Main extends App {
                 )
 
           // Checks if current movement was successful
-          val isSuccessful = outcome match {
+          val (isSuccessful, currentKingInCheck) = outcome match {
+            // Failed due to move error
             case Left(error) =>
               println(error)
-              false
-            case _ => true
+              (false, currentPlayerInCheck)
+
+            // Failed if own King is in check (board is reverted to not include movement)
+            case Right(_) if isKingInCheck(isLight = isCurrentLight) =>
+              println(s"Player move failed since they are [IN CHECK]")
+              gameBoard = oldGameBoard
+              (false, isKingInCheck(isLight = isCurrentLight))
+
+            // Succeeded if own King is not in check
+            case _ =>
+              (true, isKingInCheck(isLight = !isCurrentLight))
           }
 
-          presentBoard()
-
           // Send current outcome's result with the current move to next move's logic, moving to next player
-          play(isSuccessful, lastMove = move)
+          play(isSuccessful, lastMove = move, currentPlayerInCheck = currentKingInCheck)
         } else {
           // Send last outcome's result with last move to next move's logic, maintaining the player
-          play(wasLastMoveOk, lastMove = lastMove)
+          play(
+            wasLastMoveOk,
+            lastMove = lastMove,
+            currentPlayerInCheck = isKingInCheck(isLight = isCurrentLight)
+          )
         }
 
       case Some(_) => ()
