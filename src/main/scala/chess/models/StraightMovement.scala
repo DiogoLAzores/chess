@@ -1,8 +1,8 @@
 package chess.models
 
 import chess.BoardLogic.gameBoard
-import chess.check.Check.calculateBound
 import chess.models.ChessPiece.advanceOne
+import chess.models.King.calculateBound
 
 import scala.annotation.tailrec
 
