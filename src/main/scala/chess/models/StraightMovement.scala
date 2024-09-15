@@ -23,25 +23,22 @@ object StraightMovement {
   private def checkStraight(chessPiece: ChessPiece, kingColumn: Int, kingRow: Int)(
     currentIdx: Int,
     maxIdx: Int,
-    wasThreat: Boolean = false,
-    isHorizontal: Boolean = true
+    isHorizontal: Boolean,
+    wasThreat: Boolean = false
   ): Boolean = {
-    if (wasThreat) {
-      true
-    } else if (currentIdx == 0 || currentIdx == maxIdx) {
-      if (isHorizontal) {
-        gameBoard(currentIdx)(kingRow) == chessPiece.code
-      } else {
-        gameBoard(kingColumn)(currentIdx) == chessPiece.code
-      }
-    } else {
+    val squareChessPiece =
+      if (isHorizontal) gameBoard(kingRow)(currentIdx) else gameBoard(currentIdx)(kingColumn)
+
+    if (wasThreat) true
+    if (squareChessPiece != " ") squareChessPiece == chessPiece.code
+    else if (squareChessPiece == chessPiece.code) true
+    else
       checkStraight(chessPiece, kingColumn, kingRow)(
         advanceOne(currentIdx, maxIdx),
         maxIdx,
         wasThreat,
         isHorizontal
       )
-    }
   }
 
   private def checkStraightDirection(
@@ -50,8 +47,8 @@ object StraightMovement {
     val boundCheck    = calculateBound(if (isHorizontal) kingColumn else kingRow, isUpper = true)
     val negBoundCheck = calculateBound(if (isHorizontal) kingColumn else kingRow, isUpper = false)
 
-    checkStraight(chessPiece, kingColumn, kingRow)(negBoundCheck, 0, isHorizontal) ||
-    checkStraight(chessPiece, kingColumn, kingRow)(boundCheck, 0, isHorizontal)
+    checkStraight(chessPiece, kingColumn, kingRow)(boundCheck, 7, isHorizontal) ||
+    checkStraight(chessPiece, kingColumn, kingRow)(negBoundCheck, 0, isHorizontal)
   }
 
   implicit class StraightCheckOps[CP <: StraightMovement](chessPiece: ChessPiece) {
