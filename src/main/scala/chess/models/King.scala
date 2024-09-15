@@ -18,6 +18,10 @@ final case class King(isLight: Boolean = true) extends ChessPiece {
 }
 
 object King {
+  def calculateBound(kingPos: Int, isUpper: Boolean): Int = {
+    if (isUpper) Math.min(kingPos + 1, 7) else Math.max(kingPos - 1, 0)
+  }
+
   def getKing(isLight: Boolean = true): (Int, Int) = {
     gameBoard.zipWithIndex.flatMap {
       case (row, rowIdx) =>
