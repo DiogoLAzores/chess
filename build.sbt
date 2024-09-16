@@ -1,10 +1,9 @@
-
 lazy val root = (project in file("."))
   .settings(
-    name := "ScalaChess",
+    name         := "ScalaChess",
     scalaVersion := "2.13.14",
     version      := "0.1.0",
-    libraryDependencies +=
+    libraryDependencies   +=
       "com.whitehatgaming" % "UserInputFile" % "1.0" from "file:///Users/Utilizador/Documents/ChessProj/chess/libs/userinput.jar",
     scalacOptions ++= Seq(
       "-deprecation",
@@ -14,5 +13,5 @@ lazy val root = (project in file("."))
       "-language:postfixOps",
       "-feature",
       "-Ymacro-annotations"
-    ),
+    )
   )
