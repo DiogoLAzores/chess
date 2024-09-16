@@ -9,12 +9,12 @@ For that, refer to the following places and add the aforementioned information:
 - `build.sbt` - Change `[ADD PATH TO userinput.jar HERE]` by the absolute path of the userinput.jar. If not at hand,
 consider using the one in `/libs/userinput.jar`
 ```sbt
-(line 7)  "com.whitehatgaming" % "UserInputFile" % "1.0" from "file:///[ADD PATH TO userinput.jar HERE]",
+    "com.whitehatgaming" % "UserInputFile" % "1.0" from "file:///[ADD PATH TO userinput.jar HERE]"
 ```
 - `src/main/scala/chess/Main.scala` - Change `[ADD FILE'S ABSOLUTE PATH HERE]` by the absolute path of the moves' file.
 If not at hand, consider using one of the move files in `/data`, like `sample-moves.txt`
 ```scala
-(line 10)  private val movesFile = new UserInputFile("[ADD FILE'S ABSOLUTE PATH HERE]")
+    private val movesFile = new UserInputFile("[ADD FILE'S ABSOLUTE PATH HERE]")
 ```
 
 ---
