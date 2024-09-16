@@ -3,7 +3,7 @@ package chess.models
 import chess.BoardLogic.Board
 import chess.models.ChessPiece.advanceOne
 
-final case class Bishop(isLight: Boolean = true) extends ChessPiece {
+final case class Bishop(isLight: Boolean = true) extends DiagonalMovement {
   val name: String = "Bishop"
 
   def code: String = if (isLight) "B" else "b"
