@@ -22,7 +22,21 @@ final case class Knight(isLight: Boolean = true) extends ChessPiece {
 }
 
 object Knight {
+
+  /**
+    * Implicit class that adds an extension method to the Knight chess pieces
+    *
+    * @param knight The knight chess piece instance being extended
+    */
   implicit class KingInCheck(knight: Knight) {
+
+    /**
+      * Checks if an opponent's knight is attacking the king at the given position
+      *
+      * @param kingRow The row position of the king
+      * @param kingColumn The column position of the king
+      * @return A flag indicating if a knight is a threat to the king
+      */
     def checkAttacks(kingRow: Int, kingColumn: Int): Boolean = {
       val knightMoves = List(
         (-2, -1),

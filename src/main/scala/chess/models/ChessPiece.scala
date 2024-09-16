@@ -14,11 +14,11 @@ trait ChessPiece {
   def code: Char
 
   /**
-    * Actions piece to move from an initial position to another, given its special traversal features
+    * Attempts to move the piece from an initial position to the target position, given its specific traversal features
     *
-    * @param from Initial position
-    * @param to Final position
-    * @return Either returning a string if a problem occurred, of the updated chess board
+    * @param from Initial position tuple, with the row and column indexes, respectively
+    * @param to Final position tuple, with the row and column indexes, respectively
+    * @return An Either returning a string if a problem occurred, or the updated chess board if move was successful
     */
   def move(currentBoard: Board)(from: (Int, Int), to: (Int, Int)): Either[String, Board]
 

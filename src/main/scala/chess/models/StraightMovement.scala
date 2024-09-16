@@ -41,6 +41,18 @@ object StraightMovement {
       )
   }
 
+  /**
+    * Checks if a given chess piece poses a straight-line threat to the opposite king, either horizontally or vertically,
+    * by searching in both positive and negative directions from the king's position
+    *
+    * @param chessPiece The chess piece to check for
+    * @param kingColumn The column index of the king on the board
+    * @param kingRow The row index of the king on the board
+    * @param isHorizontal A flag indicating the direction of the search
+    *                     - `true`: Search along the row (horizontal direction)
+    *                     - `false`: Search along the column (vertical direction)
+    * @return Flag indicating if the chess piece is found as a threat to the opposite king
+    */
   private def checkStraightDirection(
     chessPiece: ChessPiece
   )(kingColumn: Int, kingRow: Int, isHorizontal: Boolean): Boolean = {
@@ -51,6 +63,12 @@ object StraightMovement {
     checkStraight(chessPiece, kingColumn, kingRow)(negBoundCheck, 0, isHorizontal)
   }
 
+  /**
+    * Implicit class that adds an extension method to chess pieces that are subtypes of `StraightMovement`
+    *
+    * @param chessPiece The chess piece instance being extended
+    * @tparam CP Subtype of `StraightMovement`
+    */
   implicit class StraightCheckOps[CP <: StraightMovement](chessPiece: ChessPiece) {
 
     /**

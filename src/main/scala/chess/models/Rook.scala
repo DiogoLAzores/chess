@@ -19,7 +19,7 @@ final case class Rook(isLight: Boolean = true) extends StraightMovement {
           Right(updateBoard(currentBoard)(from, to))
         else Left("Rook path is blocked before reaching destination")
 
-      // Invalid diagonal movement
-      case _ => Left("Invalid non-linear movement for Rook")
+      // Invalid movement
+      case _ => Left("Invalid movement for Rook")
     }
 }

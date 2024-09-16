@@ -5,9 +5,8 @@ import chess.models._
 object BoardLogic {
   type Board = Array[Array[Char]]
 
-  val LIGHT_INITIAL_ROWS: List[Int] = List(6, 7)
-  val DARK_INITIAL_ROWS: List[Int]  = List(0, 1)
-  val PAWN_INITIAL_ROWS: List[Int]  = List(1, 6)
+  val PAWN_INITIAL_ROWS: List[Int] = List(1, 6)
+  val PLAYS_SEPARATOR: String      = "#" * 29
 
   var gameBoard: Board =
     Array(
@@ -21,6 +20,11 @@ object BoardLogic {
       Array('R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R')
     )
 
+  /**
+    * Identifies a chess piece based on its character representation
+    *
+    * @return An `Option[ChessPiece]`, with the corresponding chess piece if the character is valid. None otherwise
+    */
   def identifyChessPiece: Char => Option[ChessPiece] = { pieceRepr =>
     Option(pieceRepr match {
       case 'R' => Rook()
@@ -48,6 +52,11 @@ object BoardLogic {
     */
   def isWithinBounds(row: Int, col: Int): Boolean = row >= 0 && row <= 7 && col >= 0 && col <= 7
 
+  /**
+    * Prints the current state of the chess board to the console
+    *
+    * The chess board is displayed with row/column indexes for easy reference
+    */
   def presentBoard(): Unit = {
     println("X  0  1  2  3  4  5  6  7")
     gameBoard.zipWithIndex.foreach {
