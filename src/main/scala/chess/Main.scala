@@ -7,26 +7,33 @@ import com.whitehatgaming.UserInputFile
 import scala.annotation.tailrec
 
 object Main extends App {
-  val movesFile = new UserInputFile(
+  private val movesFile = new UserInputFile(
     "C:\\Users\\Utilizador\\Documents\\ChessProj\\chess\\data\\sample-moves.txt"
   )
 
   @tailrec
   private def play(
-    wasLastMoveOk: Boolean = true,
     move: Option[Array[Int]] = Option(movesFile.nextMove()),
-    lastMove: Option[Array[Int]] = None,
     currentPlayerInCheck: Boolean = false
+  )(
+    lastMoveResult: Either[String, Boolean] = Right(true),
+    lastMove: Option[Array[Int]] = None,
+    lastInvalidMove: Option[Array[Int]] = None
   ): Unit = {
-    println("#" * 30)
-    lastMove.fold(print("Initial Board State"))(lMove => print(s"Processing move: ${lMove.mkString("[", ", ", "]")}"))
+    println(PLAYS_SEPARATOR)
+    lastMove.fold(println("Initial Board State"))(lMove =>
+      println(s"Processing move: ${lMove.mkString("[", ", ", "]")}")
+    )
+    lastMoveResult.fold(error => println(s"[Error] $error"), _ => ())
 
     move match {
       // No more moves to process
       case None =>
-        println(if (currentPlayerInCheck) " (Next player ends up [IN CHECK])" else "")
-        println("[No more moves]")
+        if (currentPlayerInCheck) println("(Next player ends up [IN CHECK])") else ()
         presentBoard()
+        println(PLAYS_SEPARATOR)
+        println("#" * 7 + " No more moves " + "#" * 7)
+        println(PLAYS_SEPARATOR)
 
       // Process new move
       case Some(Array(fColumn, fRow, tColumn, tRow)) =>
@@ -34,7 +41,8 @@ object Main extends App {
         val currentChessPiece = gameBoard(fRow)(fColumn)
         val isCurrentLight    = currentChessPiece.isUpper
 
-        println(if (currentPlayerInCheck) s" (Current Player ${if (isCurrentLight) "1" else "2"} [IN CHECK])" else "")
+        if (currentPlayerInCheck) println(s"[IN CHECK] Player ${if (isCurrentLight) "1" else "2"}")
+        else ()
         presentBoard()
 
         // Check if the current player is the same as last/last invalid move's player
@@ -47,8 +55,17 @@ object Main extends App {
             isEqualUpper || isEqualLower
           }
 
+          (lastMove, lastInvalidMove) match {
+            // Player is the same as the last invalid move's player
+            case (_, Some(Array(oldFColumn, oldFRow, _, _))) => checkPlayer(oldFRow, oldFColumn)
+            // Player is the same as the last player
+            case (Some(Array(_, _, oldTColumn, oldTRow)), _) => checkPlayer(oldTRow, oldTColumn)
+            case _                                           => true
+          }
+        }
+
         // Play normally if either the last move was ok, or the same player is doing the current move
-        if (wasLastMoveOk || samePlayer) {
+        if (lastMoveResult.contains(true) || samePlayer) {
           val outcome =
             // Check if movement exceeds board limits
             if (tColumn > gameBoard.length || tRow > gameBoard.length) {
@@ -60,31 +77,34 @@ object Main extends App {
                 )
 
           // Checks if current movement was successful
-          val (isSuccessful, currentKingInCheck) = outcome match {
+          val (moveResult: Either[String, Boolean], currentKingInCheck) = outcome match {
             // Failed due to move error
-            case Left(error) =>
-              println(error)
-              (false, currentPlayerInCheck)
+            case error @ Left(_) =>
+              (error, currentPlayerInCheck)
 
             // Failed if own King is in check (board is reverted to not include movement)
             case Right(_) if isKingInCheck(isLight = isCurrentLight) =>
-              println(s"Player move failed since they are [IN CHECK]")
+              val ownKingInCheckError = "Player move failed since they are [IN CHECK]"
               gameBoard = oldGameBoard
-              (false, isKingInCheck(isLight = isCurrentLight))
+              (Left(ownKingInCheckError), isKingInCheck(isLight = isCurrentLight))
 
             // Succeeded if own King is not in check
             case _ =>
-              (true, isKingInCheck(isLight = !isCurrentLight))
+              (Right(true), isKingInCheck(isLight = !isCurrentLight))
           }
 
-          // Send current outcome's result with the current move to next move's logic, moving to next player
-          play(isSuccessful, lastMove = move, currentPlayerInCheck = currentKingInCheck)
+          // Send current outcome's result with the current move to next move's logic, moving to the next player
+          play(currentPlayerInCheck = currentKingInCheck)(
+            moveResult,
+            lastMove = move,
+            lastInvalidMove = Option.when(moveResult.isLeft)(move).flatten
+          )
         } else {
-          // Send last outcome's result with last move to next move's logic, maintaining the player
-          play(
-            wasLastMoveOk,
-            lastMove = lastMove,
-            currentPlayerInCheck = isKingInCheck(isLight = isCurrentLight)
+          // Send invalid move and player error with last move to next move's logic, maintaining the player
+          play(currentPlayerInCheck = isKingInCheck(isLight = isCurrentLight))(
+            Left("Invalid move, it's not your turn"),
+            lastMove = move,
+            lastInvalidMove = lastInvalidMove
           )
         }
 
@@ -94,6 +114,5 @@ object Main extends App {
 
   println("Starting game. Player 1 has light/UPPERCASE pieces, Player 2 has dark/lowercase ones")
   println("('Castling', 'En Passant' and 'Promotion' moves aren't considered since not required by test)")
-  play()
-
+  play()()
 }
