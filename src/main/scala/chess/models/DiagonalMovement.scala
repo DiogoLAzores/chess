@@ -1,6 +1,6 @@
 package chess.models
 
-import chess.BoardLogic.gameBoard
+import chess.BoardLogic.{gameBoard, isWithinBounds}
 
 import scala.annotation.tailrec
 
@@ -18,14 +18,16 @@ object DiagonalMovement {
   }
 
   @tailrec
-  private def checkFrom(
+  private def checkFor(
     chessPiece: ChessPiece
   )(row: Int, col: Int, isPositive: Boolean, isUpper: Boolean): Boolean = {
     if (isWithinBounds(row, col)) {
-      if (gameBoard(row)(col) == chessPiece.code) true
+      val squarePiece = gameBoard(row)(col)
+
+      if (squarePiece == chessPiece.code) true
       else {
         val (nextRow, nextCol) = move(row, col, isPositive, isUpper)
-        checkFrom(chessPiece)(nextRow, nextCol, isPositive, isUpper)
+        checkFor(chessPiece)(nextRow, nextCol, isPositive, isUpper)
       }
     } else false
   }
@@ -40,10 +42,10 @@ object DiagonalMovement {
       * @return Flag indicating if any attacks are possible
       */
     def checkDiagonalAttacks(kingRow: Int, kingColumn: Int): Boolean = {
-      val posUpDiagonal   = checkFrom(chessPiece)(kingRow, kingColumn, isPositive = true, isUpper = true)
-      val posDownDiagonal = checkFrom(chessPiece)(kingRow, kingColumn, isPositive = true, isUpper = false)
-      val negUpDiagonal   = checkFrom(chessPiece)(kingRow, kingColumn, isPositive = false, isUpper = true)
-      val negDownDiagonal = checkFrom(chessPiece)(kingRow, kingColumn, isPositive = false, isUpper = false)
+      val posUpDiagonal   = checkFor(chessPiece)(kingRow, kingColumn, isPositive = true, isUpper = true)
+      val posDownDiagonal = checkFor(chessPiece)(kingRow, kingColumn, isPositive = true, isUpper = false)
+      val negUpDiagonal   = checkFor(chessPiece)(kingRow, kingColumn, isPositive = false, isUpper = true)
+      val negDownDiagonal = checkFor(chessPiece)(kingRow, kingColumn, isPositive = false, isUpper = false)
 
       posUpDiagonal || posDownDiagonal || negUpDiagonal || negDownDiagonal
     }

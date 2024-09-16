@@ -7,14 +7,11 @@ import scala.annotation.tailrec
 
 trait ChessPiece {
 
-  /** Chess piece name */
-  val name: String
-
   /** Chess piece side */
   val isLight: Boolean
 
   /** How the chess piece is represented in the chess board, conditioned by the associated player's color */
-  def code: String
+  def code: Char
 
   /**
     * Actions piece to move from an initial position to another, given its special traversal features
@@ -36,7 +33,7 @@ trait ChessPiece {
   final def updateBoard(currentBoard: Board)(from: (Int, Int), to: (Int, Int)): Board = {
     (from, to) match {
       case ((fColumn, fRow), (tColumn, tRow)) =>
-        currentBoard(fRow).update(fColumn, " ")
+        currentBoard(fRow).update(fColumn, ' ')
         currentBoard(tRow).update(tColumn, code)
         currentBoard
     }
@@ -56,12 +53,12 @@ trait ChessPiece {
   @tailrec
   final def isMovementValid(currentBoard: Board)(currentPos: (Int, Int), targets: (Int, Int)): Boolean =
     (currentPos, targets) match {
-      // Final position was reached successfully
+      // The final position was reached successfully
       case ((cColumn, cRow), (columnTarget, rowTarget)) if cColumn == columnTarget && cRow == rowTarget =>
         true
 
-      // Next position isn't blocked by a chess piece
-      case ((cColumn, cRow), (columnTarget, rowTarget)) if currentBoard(cRow)(cColumn).isBlank =>
+      // The next position isn't blocked by a chess piece
+      case ((cColumn, cRow), (columnTarget, rowTarget)) if currentBoard(cRow)(cColumn) == ' ' =>
         // Reached column target, increments row coordinate
         if (cColumn == columnTarget)
           isMovementValid(currentBoard)((cColumn, advanceOne(cRow, rowTarget)), targets)
@@ -76,6 +73,9 @@ trait ChessPiece {
             (advanceOne(cColumn, columnTarget), advanceOne(cRow, rowTarget)),
             targets
           )
+
+      // Remaining cases are considered as invalid movements
+      case _ => false
     }
 }
 

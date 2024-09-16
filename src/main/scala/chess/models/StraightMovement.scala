@@ -30,7 +30,7 @@ object StraightMovement {
       if (isHorizontal) gameBoard(kingRow)(currentIdx) else gameBoard(currentIdx)(kingColumn)
 
     if (wasThreat) true
-    if (squareChessPiece != " ") squareChessPiece == chessPiece.code
+    if (squareChessPiece != ' ') squareChessPiece == chessPiece.code
     else if (squareChessPiece == chessPiece.code) true
     else
       checkStraight(chessPiece, kingColumn, kingRow)(

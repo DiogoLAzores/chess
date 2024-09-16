@@ -32,20 +32,19 @@ object Main extends App {
       case Some(Array(fColumn, fRow, tColumn, tRow)) =>
         val oldGameBoard      = gameBoard
         val currentChessPiece = gameBoard(fRow)(fColumn)
-        val isCurrentLight    = currentChessPiece.forall(_.isUpper)
+        val isCurrentLight    = currentChessPiece.isUpper
 
         println(if (currentPlayerInCheck) s" (Current Player ${if (isCurrentLight) "1" else "2"} [IN CHECK])" else "")
         presentBoard()
 
-        // Check if same player is doing next move by analyzing if new movement affects the same side of the board
-        val samePlayer =
-          lastMove.forall {
-            case Array(_, _, oldTColumn, oldTRow) =>
-              val previousChessPiece = gameBoard(oldTRow)(oldTColumn) // Uses destination square to identify
-              val isEqualUpper       = previousChessPiece.forall(_.isUpper) && currentChessPiece.forall(_.isUpper)
-              val isEqualLower       = previousChessPiece.forall(_.isLower) && currentChessPiece.forall(_.isLower)
+        // Check if the current player is the same as last/last invalid move's player
+        val samePlayer = {
+          val checkPlayer = (oldRow: Int, oldColumn: Int) => {
+            val previousChessPiece = gameBoard(oldRow)(oldColumn)
+            val isEqualUpper       = previousChessPiece.isUpper && currentChessPiece.isUpper
+            val isEqualLower       = previousChessPiece.isLower && currentChessPiece.isLower
 
-              isEqualUpper || isEqualLower
+            isEqualUpper || isEqualLower
           }
 
         // Play normally if either the last move was ok, or the same player is doing the current move

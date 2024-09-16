@@ -4,9 +4,7 @@ import chess.BoardLogic.Board
 import chess.models.ChessPiece.advanceOne
 
 final case class Bishop(isLight: Boolean = true) extends DiagonalMovement {
-  val name: String = "Bishop"
-
-  def code: String = if (isLight) "B" else "b"
+  def code: Char = if (isLight) 'B' else 'b'
 
   def move(currentBoard: Board)(from: (Int, Int), to: (Int, Int)): Either[String, Board] =
     (from, to) match {
