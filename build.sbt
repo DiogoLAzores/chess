@@ -4,7 +4,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.14",
     version      := "0.1.0",
     libraryDependencies   +=
-      "com.whitehatgaming" % "UserInputFile" % "1.0" from "file:///Users/Utilizador/Documents/ChessProj/chess/libs/userinput.jar",
+      "com.whitehatgaming" % "UserInputFile" % "1.0" from "file:///[ADD PATH TO userinput.jar HERE]",
     scalacOptions ++= Seq(
       "-deprecation",
       "-encoding",

@@ -7,9 +7,7 @@ import com.whitehatgaming.UserInputFile
 import scala.annotation.tailrec
 
 object Main extends App {
-  private val movesFile = new UserInputFile(
-    "C:\\Users\\Utilizador\\Documents\\ChessProj\\chess\\data\\sample-moves.txt"
-  )
+  private val movesFile = new UserInputFile("[ADD FILE'S ABSOLUTE PATH HERE]")
 
   /**
     * Recursively processes and simulates moves in the chess game
