@@ -11,6 +11,27 @@ object Main extends App {
     "C:\\Users\\Utilizador\\Documents\\ChessProj\\chess\\data\\sample-moves.txt"
   )
 
+  /**
+    * Recursively processes and simulates moves in the chess game
+    *
+    * This method handles each move, updates the chess board state, and checks for errors
+    *
+    * @param move An optional array of four Int representing the next move:
+    *             - `fColumn`: '''F'''rom/starting column
+    *             - `fRow`: '''F'''rom/starting row
+    *             - `tColumn`: '''T'''arget column
+    *             - `tRow`: '''T'''arget column
+    * @param currentPlayerInCheck A flag indicating if the current player's king is in check
+    * @param lastMoveResult The result of the last move:
+    *                       - `Left(errorMessage)` if an error occurred, with the respective message
+    *                       - `Right(true` if the last move was successful
+    * @param lastMove An optional array representing the four integers that made the last move.
+    *                 Used to check if the same player is attempting the current move
+    * @param lastInvalidMove An optional array of four Int representing the last invalid move attempted.
+    *                        Used to check if the same player is attempting the current move
+    * @return This method prints the current chess board state, the result of the last move, and any errors encountered.
+    *         It also handles player turns and checks if the current player's king is in check after each move
+    */
   @tailrec
   private def play(
     move: Option[Array[Int]] = Option(movesFile.nextMove()),
@@ -20,16 +41,21 @@ object Main extends App {
     lastMove: Option[Array[Int]] = None,
     lastInvalidMove: Option[Array[Int]] = None
   ): Unit = {
+    // Output move's initial information
     println(PLAYS_SEPARATOR)
     lastMove.fold(println("Initial Board State"))(lMove =>
       println(s"Processing move: ${lMove.mkString("[", ", ", "]")}")
     )
     lastMoveResult.fold(error => println(s"[Error] $error"), _ => ())
 
+    // Move processing
     move match {
       // No more moves to process
       case None =>
-        if (currentPlayerInCheck) println("(Next player ends up [IN CHECK])") else ()
+        // Since it is last move, inform that next player's king is in check
+        if (currentPlayerInCheck) println("(Next player ends up IN CHECK)") else ()
+
+        // Print last information to output
         presentBoard()
         println(PLAYS_SEPARATOR)
         println("#" * 7 + " No more moves " + "#" * 7)
@@ -41,12 +67,14 @@ object Main extends App {
         val currentChessPiece = gameBoard(fRow)(fColumn)
         val isCurrentLight    = currentChessPiece.isUpper
 
+        // Inform if current player's king is in check, and output latest chess board state
         if (currentPlayerInCheck) println(s"[IN CHECK] Player ${if (isCurrentLight) "1" else "2"}")
         else ()
         presentBoard()
 
         // Check if the current player is the same as last/last invalid move's player
         val samePlayer = {
+          // Helper partial function to check if the current play is equal to last/last invalid move's player
           val checkPlayer = (oldRow: Int, oldColumn: Int) => {
             val previousChessPiece = gameBoard(oldRow)(oldColumn)
             val isEqualUpper       = previousChessPiece.isUpper && currentChessPiece.isUpper
@@ -66,6 +94,7 @@ object Main extends App {
 
         // Play normally if either the last move was ok, or the same player is doing the current move
         if (lastMoveResult.contains(true) || samePlayer) {
+          // Acquire move outcome
           val outcome =
             // Check if movement exceeds board limits
             if (tColumn > gameBoard.length || tRow > gameBoard.length) {
@@ -76,21 +105,18 @@ object Main extends App {
                   _.move(gameBoard)((fColumn, fRow), (tColumn, tRow))
                 )
 
-          // Checks if current movement was successful
+          // Checks if current move was successful
           val (moveResult: Either[String, Boolean], currentKingInCheck) = outcome match {
-            // Failed due to move error
-            case error @ Left(_) =>
-              (error, currentPlayerInCheck)
-
             // Failed if own King is in check (board is reverted to not include movement)
             case Right(_) if isKingInCheck(isLight = isCurrentLight) =>
-              val ownKingInCheckError = "Player move failed since they are [IN CHECK]"
               gameBoard = oldGameBoard
-              (Left(ownKingInCheckError), isKingInCheck(isLight = isCurrentLight))
+              (Left("Player move failed since they are IN CHECK"), isKingInCheck(isLight = isCurrentLight))
+
+            // Failed due to move error
+            case error @ Left(_) => (error, currentPlayerInCheck)
 
             // Succeeded if own King is not in check
-            case _ =>
-              (Right(true), isKingInCheck(isLight = !isCurrentLight))
+            case _ => (Right(true), isKingInCheck(isLight = !isCurrentLight))
           }
 
           // Send current outcome's result with the current move to next move's logic, moving to the next player
@@ -112,6 +138,7 @@ object Main extends App {
     }
   }
 
+  // Output initial game information
   println("Starting game. Player 1 has light/UPPERCASE pieces, Player 2 has dark/lowercase ones")
   println("('Castling', 'En Passant' and 'Promotion' moves aren't considered since not required by test)")
   play()()
