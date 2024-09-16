@@ -1,11 +1,9 @@
 package chess.models
 
-import chess.BoardLogic.{Board, gameBoard}
+import chess.BoardLogic.{Board, gameBoard, isWithinBounds}
 
 final case class Knight(isLight: Boolean = true) extends ChessPiece {
-  val name: String = "Knight"
-
-  def code: String = if (isLight) "N" else "n"
+  def code: Char = if (isLight) 'N' else 'n'
 
   def move(currentBoard: Board)(from: (Int, Int), to: (Int, Int)): Either[String, Board] =
     (from, to) match {
@@ -18,35 +16,45 @@ final case class Knight(isLight: Boolean = true) extends ChessPiece {
           if (Math.abs(fColumn - tColumn) == 2 && Math.abs(fRow - tRow) == 1) ||
             (Math.abs(fColumn - tColumn) == 1 && Math.abs(fRow - tRow) == 2) =>
         Right(updateBoard(currentBoard)(from, to))
+
+      case _ => Left("Invalid movement for Knight")
     }
 }
 
 object Knight {
+
+  /**
+    * Implicit class that adds an extension method to the Knight chess pieces
+    *
+    * @param knight The knight chess piece instance being extended
+    */
   implicit class KingInCheck(knight: Knight) {
+
+    /**
+      * Checks if an opponent's knight is attacking the king at the given position
+      *
+      * @param kingRow The row position of the king
+      * @param kingColumn The column position of the king
+      * @return A flag indicating if a knight is a threat to the king
+      */
     def checkAttacks(kingRow: Int, kingColumn: Int): Boolean = {
-      val validPlusRows: Int => Boolean     = kingRow + _ <= 7
-      val validMinusRows: Int => Boolean    = kingRow - _ >= 0
-      val validPlusColumns: Int => Boolean  = kingColumn + _ <= 7
-      val validMinusColumns: Int => Boolean = kingColumn - _ >= 0
+      val knightMoves = List(
+        (-2, -1),
+        (-2, 1),
+        (-1, -2),
+        (-1, 2),
+        (1, -2),
+        (1, 2),
+        (2, -1),
+        (2, 1)
+      )
 
-      val pos1 =
-        if (validMinusRows(1) && validMinusColumns(2)) gameBoard(kingRow - 1)(kingColumn - 2) else ""
-      val pos2 =
-        if (validMinusRows(2) && validMinusColumns(1)) gameBoard(kingRow - 2)(kingColumn - 1) else ""
-      val pos3 =
-        if (validPlusRows(1) && validMinusColumns(2)) gameBoard(kingRow + 1)(kingColumn - 2) else ""
-      val pos4 =
-        if (validPlusRows(2) && validMinusColumns(1)) gameBoard(kingRow + 2)(kingColumn - 1) else ""
-      val pos5 =
-        if (validMinusRows(2) && validPlusColumns(1)) gameBoard(kingRow - 2)(kingColumn + 1) else ""
-      val pos6 =
-        if (validMinusRows(1) && validPlusColumns(2)) gameBoard(kingRow - 1)(kingColumn + 2) else ""
-      val pos7 =
-        if (validPlusRows(1) && validPlusColumns(2)) gameBoard(kingRow + 1)(kingColumn + 2) else ""
-      val pos8 =
-        if (validPlusRows(2) && validPlusColumns(1)) gameBoard(kingRow + 2)(kingColumn + 1) else ""
-
-      List(pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8).contains(knight.code)
+      knightMoves.exists {
+        case (rowOffset, colOffset) =>
+          val newRow    = kingRow + rowOffset
+          val newColumn = kingColumn + colOffset
+          isWithinBounds(newRow, newColumn) && gameBoard(newRow)(newColumn) == knight.code
+      }
     }
   }
 }

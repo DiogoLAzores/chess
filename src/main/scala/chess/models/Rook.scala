@@ -4,9 +4,7 @@ import chess.BoardLogic.Board
 import chess.models.ChessPiece.advanceOne
 
 final case class Rook(isLight: Boolean = true) extends StraightMovement {
-  val name: String = "Rook"
-
-  def code: String = if (isLight) "R" else "r"
+  def code: Char = if (isLight) 'R' else 'r'
 
   def move(currentBoard: Board)(from: (Int, Int), to: (Int, Int)): Either[String, Board] =
     (from, to) match {
@@ -21,7 +19,7 @@ final case class Rook(isLight: Boolean = true) extends StraightMovement {
           Right(updateBoard(currentBoard)(from, to))
         else Left("Rook path is blocked before reaching destination")
 
-      // Invalid diagonal movement
-      case _ => Left("Invalid non-linear movement for Rook")
+      // Invalid movement
+      case _ => Left("Invalid movement for Rook")
     }
 }

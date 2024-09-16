@@ -1,17 +1,15 @@
 package chess.models
 
-import chess.BoardLogic.{Board, PAWN_INITIAL_ROWS}
+import chess.BoardLogic.{Board, PAWN_INITIAL_ROWS, gameBoard}
 import chess.models.ChessPiece.advanceOne
 
 final case class Pawn(isLight: Boolean = true) extends ChessPiece {
-  val name: String = "Pawn"
-
-  def code: String = if (isLight) "P" else "p"
+  def code: Char = if (isLight) 'P' else 'p'
 
   def move(currentBoard: Board)(from: (Int, Int), to: (Int, Int)): Either[String, Board] =
     (from, to) match {
       // Invalid movement since the columns are different
-      case ((fColumn, _), (tColumn, _)) if fColumn != tColumn =>
+      case ((fColumn, _), (tColumn, tRow)) if fColumn != tColumn && gameBoard(tRow)(tColumn) == ' ' =>
         Left(s"Column initial/final coordinates aren't the same")
 
       // Normal forward movement
@@ -35,7 +33,7 @@ final case class Pawn(isLight: Boolean = true) extends ChessPiece {
       case ((fColumn, fRow), (tColumn, tRow))
           if Math.abs(fRow - tRow) == 1 && (tColumn == fColumn - 1 || tColumn == fColumn + 1) =>
         // Checks if destination has a chess piece, fails movement if not
-        if (currentBoard(tColumn)(tRow).isBlank)
+        if (currentBoard(tColumn)(tRow) == ' ')
           Left("Pawn can't go diagonally without a target in the destination")
         else Right(updateBoard(currentBoard)(from, to))
 
